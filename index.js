@@ -1,18 +1,32 @@
 const express = require('express');
 const app = express();
-const { v4: uuid } = require('uuid');
 const path = require('path');
 const methodOverride = require('method-override');
 const { render } = require('ejs');
+const mongoose = require('mongoose');
+
+console.log(main());
+
+async function main() {
+    await mongoose.connect('mongodb+srv://him:himanshu@cluster0.yfpx5hl.mongodb.net/?retryWrites=true&w=majority')
+    .then(() => {
+        console.log("DATABASE CONNECTED!!!")
+    })
+    .catch(err => {
+        console.log("ERROR!!!! DATABASE IS NOT CONNECTED")
+        console.log(err)
+    })
+}
+
 
 let comments = [
     {
-        id: uuid(),
+        id: 1,
         username: "Jhon",
         comment: "I have a dream and a hope it comes true"
     },
     {
-        id: uuid(),
+        id: 2,
         username: "Doe",
         comment: "I wish that the sky up abova"
     }
@@ -20,7 +34,6 @@ let comments = [
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride('_method'));
-
 app.set('view engine', 'ejs');
 // app.set('view',path.join(__dirname,'views'));     
 
@@ -37,23 +50,23 @@ app.post('/comments', (req, res) => {
     //console.dir(req.body);
     const { username, comment } = req.body;
     //console.log({ username, comment })
-    comments.push({ username, comment, id: uuid() });
+    comments.push({ username, comment, id: 3 });
     //console.log({ comments })
     res.redirect('/comments');
 });
-
-app.get('/comments/:id', (req,res)=>{
-    let {id}=req.params;
-    let text=comments.find(x => x.id==id);
-    //console.log({text})
-    res.render(path.join(__dirname, 'views/details.ejs'), {text});
-})
-
-app.get('/comments/:id/edit', (req,res)=>{
-    let {id}=req.params;
-    let text=comments.find(x => x.id==id);
-    res.render(path.join(__dirname, 'views/edit.ejs'),{text});
-})
+    
+    app.get('/comments/:id', (req,res)=>{
+        let {id}=req.params;
+        let text=comments.find(x => x.id==id);
+        //console.log({text})
+        res.render(path.join(__dirname, 'views/details.ejs'), {text});
+    })
+    
+    app.get('/comments/:id/edit', (req,res)=>{
+        let {id}=req.params;
+        let text=comments.find(x => x.id==id);
+        res.render(path.join(__dirname, 'views/edit.ejs'),{text});
+    })
 
 app.patch('/comments/:id/edit', (req,res)=>{
     let {id}=req.params;
