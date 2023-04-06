@@ -1,0 +1,14 @@
+<%- include('partials/head.ejs') %>
+
+<body>
+    <h1>LIST:</h1>
+    <ul>
+        <% for (let x of comments){%>
+            <li><%= x.comment  %> - <%= x.username %>  
+                <a style="text-decoration:none; font-size: 1em" href="comments/<%= x.id %>" class="material-symbols-outlined">info</a></li>
+            <% } %>
+    </ul>
+    <a href="comments/new" style="text-decoration:none; font-size: 2em" class="material-symbols-outlined">add</a>
+</body>
+
+</html>
