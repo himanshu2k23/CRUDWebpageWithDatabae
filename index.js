@@ -1,87 +1,82 @@
+//CONST DECLARATION
 const express = require('express');
 const app = express();
 const path = require('path');
 const methodOverride = require('method-override');
 const { render } = require('ejs');
 const mongoose = require('mongoose');
+const Comment = require('./models/comment')
 
+//CONNECTING DATABASE
 console.log(main());
-
 async function main() {
     await mongoose.connect('mongodb+srv://him:himanshu@cluster0.yfpx5hl.mongodb.net/?retryWrites=true&w=majority')
-    .then(() => {
-        console.log("DATABASE CONNECTED!!!")
-    })
-    .catch(err => {
-        console.log("ERROR!!!! DATABASE IS NOT CONNECTED")
-        console.log(err)
-    })
+        .then(() => {
+            console.log("DATABASE CONNECTED!!!")
+        })
+        .catch(err => {
+            console.log("ERROR!!!! DATABASE IS NOT CONNECTED")
+            console.log(err)
+        })
 }
 
-
-let comments = [
-    {
-        id: 1,
-        username: "Jhon",
-        comment: "I have a dream and a hope it comes true"
-    },
-    {
-        id: 2,
-        username: "Doe",
-        comment: "I wish that the sky up abova"
-    }
-];
+//.USE
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride('_method'));
+
+//.SET  
 app.set('view engine', 'ejs');
-// app.set('view',path.join(__dirname,'views'));     
 
-
-app.get('/comments', (req, res) => {
-    //console.log({ comments })
+//INDEX
+app.get('/comments', async (req, res) => {
+    const comments = await Comment.find({});
+    //console.log({ comments });
     res.render(path.join(__dirname, 'views/comments.ejs'), { comments });
 });
+
+//POST
 app.get('/comments/new', (req, res) => {
     res.render(path.join(__dirname, 'views/post.ejs'));
 })
 
-app.post('/comments', (req, res) => {
-    //console.dir(req.body);
-    const { username, comment } = req.body;
-    //console.log({ username, comment })
-    comments.push({ username, comment, id: 3 });
-    //console.log({ comments })
+app.post('/comments', async (req, res) => {
+    console.dir(req.body);
+    const newcomment = new Comment(req.body);
+    await newcomment.save();
     res.redirect('/comments');
 });
-    
-    app.get('/comments/:id', (req,res)=>{
-        let {id}=req.params;
-        let text=comments.find(x => x.id==id);
-        //console.log({text})
-        res.render(path.join(__dirname, 'views/details.ejs'), {text});
-    })
-    
-    app.get('/comments/:id/edit', (req,res)=>{
-        let {id}=req.params;
-        let text=comments.find(x => x.id==id);
-        res.render(path.join(__dirname, 'views/edit.ejs'),{text});
-    })
 
-app.patch('/comments/:id/edit', (req,res)=>{
+//DETAILS    
+app.get('/comments/:id', async (req, res) => {
+    let { id } = req.params;
+    const text = await Comment.findById(id);
+    //console.log({ text });
+    res.render(path.join(__dirname, 'views/details.ejs'), { text });
+})
+
+//EDIT
+app.get('/comments/:id/edit', async (req, res) => {
+    let { id } = req.params;
+    let text = await Comment.findById(id);
+    res.render(path.join(__dirname, 'views/edit.ejs'), { text });
+})
+
+app.patch('/comments/:id/edit',async (req,res)=>{
     let {id}=req.params;
-    let text=comments.find(x => x.id==id);
-    let newcomment=req.body.newcomment;
-    text.comment=newcomment;
+    //console.log(req.body);
+    let text=await Comment.findByIdAndUpdate(id,req.body,{new:true});
+    text.save();
+    //console.log({text});
     res.redirect('/comments');
 })
 
-app.delete('/comments/:id/delete', (req,res)=>{
+//DELETE
+app.delete('/comments/:id/delete', async (req,res)=>{
     let {id}=req.params;
-    comments=comments.filter(x=> x.id!==id)
-    console.log({comments});
+    let text=await Comment.findByIdAndDelete(id,{new:true});
+    console.log({text});
     res.redirect('/comments');
-
 })
 
 app.listen(3001, () => {

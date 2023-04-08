@@ -1,11 +1,11 @@
 <%- include('partials/head.ejs') %>
 
-    <h1><%= text.username %></h1>
-    <form method="post" action="/comments/<%= text.id %>/edit?_method=PATCH" >
+    <h1 >Username:<%= text.username %></h1>
+    <form method="post" action="/comments/<%= text._id %>/edit?_method=PATCH" >
         <br>
         <label for="newcomment">Enter the new comment:</label>
         <br>
-        <textarea name="newcomment" id="newcomment" cols="30" rows="10" placeholder="<%=text.comment  %>"></textarea>
+        <textarea name="comment" id="newcomment" cols="30" rows="10" placeholder="<%=text.comment%>"></textarea>
         <br>
         <button>Submit</button>
     </form>
